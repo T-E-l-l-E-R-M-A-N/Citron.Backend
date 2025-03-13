@@ -1,0 +1,12 @@
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/bin/Debug/net5.0/Citron.Database.deps.json
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/bin/Debug/net5.0/Citron.Database.dll
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/bin/Debug/net5.0/ref/Citron.Database.dll
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/bin/Debug/net5.0/Citron.Database.pdb
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/Debug/net5.0/Citron.Database.csproj.AssemblyReference.cache
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/Debug/net5.0/Citron.Database.GeneratedMSBuildEditorConfig.editorconfig
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/Debug/net5.0/Citron.Database.AssemblyInfoInputs.cache
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/Debug/net5.0/Citron.Database.AssemblyInfo.cs
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/Debug/net5.0/Citron.Database.csproj.CoreCompileInputs.cache
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/Debug/net5.0/Citron.Database.dll
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/Debug/net5.0/ref/Citron.Database.dll
+/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/Debug/net5.0/Citron.Database.pdb
