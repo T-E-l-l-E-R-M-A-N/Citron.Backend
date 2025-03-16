@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebPush;
 
 namespace Citron.Backend
 {
@@ -21,6 +22,7 @@ namespace Citron.Backend
             services.AddCors();
             services.AddMvc();
             services.AddControllers();
+            services.AddSingleton<SingleInstanceHelper>();
 
         }
 
@@ -34,7 +36,7 @@ namespace Citron.Backend
 
             app.UseRouting();
             app.UseCors(builder => builder
-                .WithOrigins("http://10.10.10.106:5173", "http://localhost:5173")
+                .WithOrigins("https://10.10.10.106:5173", "https://localhost:5173", "https://10.10.10.118:5173")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials()
@@ -54,7 +56,7 @@ namespace Citron.Backend
 
     internal class SingleInstanceHelper
     {
-
+        //public WebPushClient PushClient { get; set; }
         public List<string> Connections { get; set; } = new List<string>();
     }
 }

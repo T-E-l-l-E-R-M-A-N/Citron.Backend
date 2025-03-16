@@ -47,6 +47,10 @@
             "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
               "version": "[5.0.17, )"
+            },
+            "WebPush": {
+              "target": "Package",
+              "version": "[1.0.12, )"
             }
           },
           "imports": [

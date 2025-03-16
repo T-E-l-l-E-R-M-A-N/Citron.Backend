@@ -13,16 +13,20 @@ namespace Citron.Backend
         private readonly Random _rand = new Random();
         private readonly SingleInstanceHelper _singleInstanceHelper;
         private readonly MyDbContext _myDbContext;
+        
 
-        public ApplicationHub(SingleInstanceHelper singleInstanceHelper)
+        public ApplicationHub(SingleInstanceHelper singleInstanceHelper, MyDbContext myDbContext)
         {
             _singleInstanceHelper = singleInstanceHelper;
+            _myDbContext = myDbContext;
         }
-        
-        public async Task ConnectAsync(string connectionId, string access_key)
+
+        public async Task<int> ConnectAsync(string connectionId, string access_key)
         {
-            string connection = $"{connectionId} : {access_key}";
+            var user = await _myDbContext.Users.FirstOrDefaultAsync(x => x.AccessKey == access_key);
+            string connection = $"{connectionId} : {user.Id}";
             _singleInstanceHelper.Connections.Add(connection);
+            return user.Id;
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -73,15 +77,21 @@ namespace Citron.Backend
             return await _myDbContext.Users.FindAsync(id);
         }
 
-        public Room[] GetRooms(int id)
+        public async Task<Room[]> GetRooms(int id)
         {
             var rooms = _myDbContext.Rooms.Where(x => x.Members.Contains(id.ToString()));
             return rooms.ToArray();
         }
 
-        public async Task<Message> SendNewMessageAsync(int userId, int targetId, string text)
+        public async Task<Message[]> GetMessagesAsync(int roomId)
         {
-            var room = await _myDbContext.Rooms.FirstOrDefaultAsync(x => x.Members.Contains(targetId.ToString()));
+            var messages = _myDbContext.Messages.Where(x => x.Room == roomId).OrderBy(x=>x.Date);
+            return messages.ToArray();
+        }
+
+        public async Task SendNewMessageAsync(int userId, int targetId, string text)
+        {
+            var room = await _myDbContext.Rooms.FirstOrDefaultAsync(x => x.Members.Contains(targetId.ToString()) & x.Members.Contains(userId.ToString()));
             if (room == null)
             {
 
@@ -104,7 +114,8 @@ namespace Citron.Backend
                 Id = _rand.Next(),
                 UserId = userId,
                 Room = room.Id,
-                Text = text
+                Text = text,
+                Date = DateTime.Now
             };
             
             await _myDbContext.Messages.AddAsync(msg);
@@ -114,21 +125,37 @@ namespace Citron.Backend
             var users = new List<User>();
             
 
-            foreach(var member in room.Members.Split(", "))
+            if(_singleInstanceHelper.Connections.Count != 0)
             {
-                var m = await _myDbContext.Users.FirstAsync(x => x.Id == int.Parse(member));
-                users.Add(m);
+                foreach (var member in room.Members.Split(", "))
+                {
+                    var m = await _myDbContext.Users.FirstAsync(x => x.Id == int.Parse(member));
+                    users.Add(m);
+                }
+
+                foreach (var l in users)
+                {
+                    try
+                    {
+                        string connectionId = "";
+                        foreach(var connection in _singleInstanceHelper.Connections)
+                        {
+                            if (connection.Split(" : ").FirstOrDefault(d => d == l.Id.ToString()) is string g)
+                            {
+                                if (_singleInstanceHelper.Connections.FirstOrDefault(x => x.Contains(g)) is string connection2)
+                                {
+                                    connectionId = connection2.Split(" : ").FirstOrDefault();
+                                }
+                            }
+                        }
+                        
+                        clients.Add(connectionId);
+                    }
+                    catch (Exception e) { Console.Write(e); }
+                }
+
+                await Clients.Clients(clients).SendAsync("OnMessageReceived", msg);
             }
-
-            foreach(var l in users)
-            {
-                var connectionId = _singleInstanceHelper.Connections.FirstOrDefault(x => x.Split(" : ").FirstOrDefault(d => d == l.AccessKey) != null);
-                clients.Add(connectionId);
-            }
-
-            await Clients.Clients(clients).SendAsync("OnMessageReceived", msg);
-
-            return msg;
         }
         
     }

@@ -101,3 +101,6 @@ C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Backend\obj\D
 C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Backend\obj\Debug\net5.0\ref\Citron.Backend.dll
 C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Backend\obj\Debug\net5.0\Citron.Backend.pdb
 C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Backend\obj\Debug\net5.0\Citron.Backend.genruntimeconfig.cache
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Backend\bin\Debug\net5.0\Newtonsoft.Json.dll
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Backend\bin\Debug\net5.0\BouncyCastle.Crypto.dll
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Backend\bin\Debug\net5.0\WebPush.dll

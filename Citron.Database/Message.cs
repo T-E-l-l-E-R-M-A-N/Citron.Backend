@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Citron.Database
@@ -9,5 +10,6 @@ namespace Citron.Database
         public int UserId { get; set; }
         public int Room { get; set; }
         public string Text { get; set; }
+        public DateTime Date { get; set; }
     }
 }
