@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Citron.Database;
@@ -10,14 +11,25 @@ namespace Citron.Backend
     internal class ApplicationHub : Hub
     {
         private readonly Random _rand = new Random();
+        private readonly SingleInstanceHelper _singleInstanceHelper;
         private readonly MyDbContext _myDbContext;
 
-        public ApplicationHub(MyDbContext myDbContext)
+        public ApplicationHub(SingleInstanceHelper singleInstanceHelper)
         {
-            _myDbContext = myDbContext;
-                _myDbContext.Database.EnsureCreated();
+            _singleInstanceHelper = singleInstanceHelper;
+        }
+        
+        public async Task ConnectAsync(string connectionId, string access_key)
+        {
+            string connection = $"{connectionId} : {access_key}";
+            _singleInstanceHelper.Connections.Add(connection);
         }
 
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            int i = _singleInstanceHelper.Connections.IndexOf(_singleInstanceHelper.Connections.FirstOrDefault(x => x.Contains(Context.ConnectionId)));
+            _singleInstanceHelper.Connections.RemoveAt(i);
+        }
         public async Task<string> RegisterAsync(string name, string login, string password)
         {
             if (string.IsNullOrEmpty(login)) return "none: access key";
@@ -50,7 +62,7 @@ namespace Citron.Backend
             return user.AccessKey;
         }
 
-        public async Task<User[]> GetUsersAsync()
+        public User[] GetUsers()
         {
             var users = _myDbContext.Users.ToArray();
             return users;
@@ -59,6 +71,12 @@ namespace Citron.Backend
         public async Task<User> GetUserByIdAsync(int id)
         {
             return await _myDbContext.Users.FindAsync(id);
+        }
+
+        public Room[] GetRooms(int id)
+        {
+            var rooms = _myDbContext.Rooms.Where(x => x.Members.Contains(id.ToString()));
+            return rooms.ToArray();
         }
 
         public async Task<Message> SendNewMessageAsync(int userId, int targetId, string text)
@@ -92,7 +110,23 @@ namespace Citron.Backend
             await _myDbContext.Messages.AddAsync(msg);
             await _myDbContext.SaveChangesAsync();
 
-            await Clients.Others.SendAsync("OnMessageReceived", msg);
+            var clients = new List<string>();
+            var users = new List<User>();
+            
+
+            foreach(var member in room.Members.Split(", "))
+            {
+                var m = await _myDbContext.Users.FirstAsync(x => x.Id == int.Parse(member));
+                users.Add(m);
+            }
+
+            foreach(var l in users)
+            {
+                var connectionId = _singleInstanceHelper.Connections.FirstOrDefault(x => x.Split(" : ").FirstOrDefault(d => d == l.AccessKey) != null);
+                clients.Add(connectionId);
+            }
+
+            await Clients.Clients(clients).SendAsync("OnMessageReceived", msg);
 
             return msg;
         }

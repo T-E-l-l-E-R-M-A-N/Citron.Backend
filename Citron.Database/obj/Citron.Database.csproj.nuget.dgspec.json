@@ -1,25 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/Citron.Database.csproj": {}
+    "C:\\Users\\user\\Source\\Repos\\T-E-l-l-E-R-M-A-N\\Citron.Backend\\Citron.Database\\Citron.Database.csproj": {}
   },
   "projects": {
-    "/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/Citron.Database.csproj": {
+    "C:\\Users\\user\\Source\\Repos\\T-E-l-l-E-R-M-A-N\\Citron.Backend\\Citron.Database\\Citron.Database.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/Citron.Database.csproj",
+        "projectUniqueName": "C:\\Users\\user\\Source\\Repos\\T-E-l-l-E-R-M-A-N\\Citron.Backend\\Citron.Database\\Citron.Database.csproj",
         "projectName": "Citron.Database",
-        "projectPath": "/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/Citron.Database.csproj",
-        "packagesPath": "/Users/dmitrij-471/.nuget/packages/",
-        "outputPath": "/Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/",
+        "projectPath": "C:\\Users\\user\\Source\\Repos\\T-E-l-l-E-R-M-A-N\\Citron.Backend\\Citron.Database\\Citron.Database.csproj",
+        "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\user\\Source\\Repos\\T-E-l-l-E-R-M-A-N\\Citron.Backend\\Citron.Database\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/dmitrij-471/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net5.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -58,7 +60,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/5.0.408/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.408\\RuntimeIdentifierGraph.json"
         }
       }
     }

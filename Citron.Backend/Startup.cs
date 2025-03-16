@@ -19,6 +19,8 @@ namespace Citron.Backend
             services.AddDbContext<MyDbContext>(o => o.UseSqlite("Data Source=chat.db"));
             services.AddSignalR();
             services.AddCors();
+            services.AddMvc();
+            services.AddControllers();
 
         }
 
@@ -32,18 +34,27 @@ namespace Citron.Backend
 
             app.UseRouting();
             app.UseCors(builder => builder
-                .WithOrigins("http://localhost:5173")
+                .WithOrigins("http://10.10.10.106:5173", "http://localhost:5173")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .SetIsOriginAllowed((host) => true)
                 .AllowCredentials()
             );
+            //app.UseMvc();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllerRoute(
+                     name: "default",
+                        pattern: "{controller=Api}/{action=Index}/");
                 endpoints.MapHub<ApplicationHub>("/index");
                 endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Hello World!"); });
             });
         }
+    }
+
+    internal class SingleInstanceHelper
+    {
+
+        public List<string> Connections { get; set; } = new List<string>();
     }
 }

@@ -10,3 +10,15 @@
 /Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/Debug/net5.0/Citron.Database.dll
 /Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/Debug/net5.0/ref/Citron.Database.dll
 /Users/dmitrij-471/RiderProjects/Citron/Citron.Database/obj/Debug/net5.0/Citron.Database.pdb
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\bin\Debug\net5.0\Citron.Database.deps.json
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\bin\Debug\net5.0\Citron.Database.dll
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\bin\Debug\net5.0\ref\Citron.Database.dll
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\bin\Debug\net5.0\Citron.Database.pdb
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\obj\Debug\net5.0\Citron.Database.csproj.AssemblyReference.cache
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\obj\Debug\net5.0\Citron.Database.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\obj\Debug\net5.0\Citron.Database.AssemblyInfoInputs.cache
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\obj\Debug\net5.0\Citron.Database.AssemblyInfo.cs
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\obj\Debug\net5.0\Citron.Database.csproj.CoreCompileInputs.cache
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\obj\Debug\net5.0\Citron.Database.dll
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\obj\Debug\net5.0\ref\Citron.Database.dll
+C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Database\obj\Debug\net5.0\Citron.Database.pdb

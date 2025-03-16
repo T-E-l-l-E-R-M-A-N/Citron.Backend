@@ -11,7 +11,7 @@ namespace Citron.Database
 
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
         {
-            
+            Database.EnsureCreated();
         }
         
     }
