@@ -36,7 +36,7 @@ namespace Citron.Backend
 
             app.UseRouting();
             app.UseCors(builder => builder
-                .WithOrigins("https://10.10.10.106:5173", "https://localhost:5173", "https://10.10.10.118:5173")
+                .WithOrigins("https://10.10.10.106:5174", "https://localhost:5174", "https://10.10.10.118:5174")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials()

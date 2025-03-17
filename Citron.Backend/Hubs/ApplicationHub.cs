@@ -94,19 +94,23 @@ namespace Citron.Backend
             var room = await _myDbContext.Rooms.FirstOrDefaultAsync(x => x.Members.Contains(targetId.ToString()) & x.Members.Contains(userId.ToString()));
             if (room == null)
             {
-
-                var user = await _myDbContext.Users.FindAsync(userId);
-                var target = await _myDbContext.Users.FindAsync(targetId);
-                
-                room = new Room()
+                room = await _myDbContext.Rooms.FirstOrDefaultAsync(x => x.Id == targetId);
+                if(room == null)
                 {
-                    Id = _rand.Next(),
-                    Members = $"{userId}, {targetId}",
-                    Name = user.Name + " + " + target.Name
-                };
 
-                await _myDbContext.Rooms.AddAsync(room);
-                await _myDbContext.SaveChangesAsync();
+                    var user = await _myDbContext.Users.FindAsync(userId);
+                    var target = await _myDbContext.Users.FindAsync(targetId);
+
+                    room = new Room()
+                    {
+                        Id = _rand.Next(),
+                        Members = $"{userId}, {targetId}",
+                        Name = user.Name + " + " + target.Name
+                    };
+
+                    await _myDbContext.Rooms.AddAsync(room);
+                    await _myDbContext.SaveChangesAsync();
+                }
             }
 
             var msg = new Message()
