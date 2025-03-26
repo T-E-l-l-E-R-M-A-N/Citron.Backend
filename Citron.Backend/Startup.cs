@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Citron.Database;
@@ -17,7 +18,10 @@ namespace Citron.Backend
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<MyDbContext>(o => o.UseSqlite("Data Source=chat.db"));
+            services.AddDbContext<MyDbContext>(o => {
+                o.UseNpgsql("Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=00001111");
+                o.LogTo(message => System.Diagnostics.Debug.WriteLine(message));
+            });
             services.AddSignalR();
             services.AddCors();
             services.AddMvc();
@@ -36,7 +40,7 @@ namespace Citron.Backend
 
             app.UseRouting();
             app.UseCors(builder => builder
-                .WithOrigins("https://10.10.10.106:5174", "https://localhost:5174", "https://10.10.10.118:5174")
+                .WithOrigins("https://10.10.10.106:5173", "https://localhost:5173", "https://10.10.10.118:5173")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials()

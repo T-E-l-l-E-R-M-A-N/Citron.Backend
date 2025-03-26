@@ -7,5 +7,6 @@
     <ActiveDebugProfile>Citron.Backend</ActiveDebugProfile>
     <Controller_SelectedScaffolderID>MvcControllerWithActionsScaffolder</Controller_SelectedScaffolderID>
     <Controller_SelectedScaffolderCategoryPath>root/Common/MVC/Controller</Controller_SelectedScaffolderCategoryPath>
+    <NameOfLastUsedPublishProfile>C:\Users\user\Source\Repos\T-E-l-l-E-R-M-A-N\Citron.Backend\Citron.Backend\Properties\PublishProfiles\FolderProfile.pubxml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
 </Project>

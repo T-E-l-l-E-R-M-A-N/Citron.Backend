@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Citron.Database;
 using Microsoft.AspNetCore.SignalR;
@@ -24,6 +25,8 @@ namespace Citron.Backend
         public async Task<int> ConnectAsync(string connectionId, string access_key)
         {
             var user = await _myDbContext.Users.FirstOrDefaultAsync(x => x.AccessKey == access_key);
+            if (user == null)
+                return -1;
             string connection = $"{connectionId} : {user.Id}";
             _singleInstanceHelper.Connections.Add(connection);
             return user.Id;
@@ -40,7 +43,6 @@ namespace Citron.Backend
             
             var user = new User()
             {
-                Id = _rand.Next(),
                 Name = name,
                 Login = login,
                 Password = password,
@@ -55,7 +57,7 @@ namespace Citron.Backend
 
         public async Task<string> LoginAsync(string login, string password)
         {
-            var user = await _myDbContext.Users.FirstOrDefaultAsync(x => x.Login == login);
+            var user = await _myDbContext.Users.SingleAsync(x => x.Login == login);
             if (user == null)
                 return "Invalid credentials";
             
@@ -66,58 +68,73 @@ namespace Citron.Backend
             return user.AccessKey;
         }
 
-        public User[] GetUsers()
+        public async Task<User[]> GetUsersAsync()
         {
-            var users = _myDbContext.Users.ToArray();
-            return users;
+            var connection = _singleInstanceHelper.Connections.FirstOrDefault(x => x.Contains(Context.ConnectionId));
+            var splits = connection.Split(" : ");
+            var s = _myDbContext.Users.FirstOrDefault(x => x.Id == int.Parse(splits[1]));
+            var users = _myDbContext.Users.Where(x=>x.Id != s.Id).ToArray();
+            return await Task.FromResult(users);
         }
 
         public async Task<User> GetUserByIdAsync(int id)
         {
-            return await _myDbContext.Users.FindAsync(id);
+            return await _myDbContext.Users.SingleAsync(x => x.Id == id);
         }
 
-        public async Task<Room[]> GetRooms(int id)
+        public async Task<Room[]> GetRoomsAsync(int id)
         {
-            var rooms = _myDbContext.Rooms.Where(x => x.Members.Contains(id.ToString()));
-            return rooms.ToArray();
+            var user = await _myDbContext.Users.SingleAsync(x=>x.Id == id);
+            var rooms = _myDbContext.Rooms.Where(x => x.Users.Contains(user.Id.ToString()));
+            var res = rooms.Select(u => new Room()
+            {
+                Id = u.Id,
+                Name = u.Name.Replace(user.Name, "").Replace(" + ", ""),
+                Users = u.Users
+            }).ToArray();
+            return res;
         }
 
-        public async Task<Message[]> GetMessagesAsync(int roomId)
+        public async Task<Message[]> GetMessages(int roomId)
         {
-            var messages = _myDbContext.Messages.Where(x => x.Room == roomId).OrderBy(x=>x.Date);
-            return messages.ToArray();
+            var messages = _myDbContext.Messages
+                .Include(u => u.Room)
+                .Include(u =>u.User)
+                .Where(x=>x.RoomId == roomId);
+            return await Task.FromResult(messages.ToArray());
         }
 
-        public async Task SendNewMessageAsync(int userId, int targetId, string text)
+        public async Task<User[]> SearchUsers(string name)
         {
-            var room = await _myDbContext.Rooms.FirstOrDefaultAsync(x => x.Members.Contains(targetId.ToString()) & x.Members.Contains(userId.ToString()));
+            var users = _myDbContext.Users
+                .Where(x => 
+                x.Name.ToLower().Contains(name.ToLower())
+                );
+            return await Task.FromResult(users.ToArray());
+        }
+
+        public async Task SendPrivateMessageAsync(int userId, int targetId, string text)
+        {
+            var user = await GetUserByIdAsync(userId);
+            var target = await GetUserByIdAsync(targetId);
+            var rooms = await GetRoomsAsync(userId);
+            var room = rooms.Where(x=>x.Users.Split(", ").Length == 2).FirstOrDefault(x=>x.Users.Contains(user.Id.ToString()) & x.Users.Contains(target.Id.ToString()));
             if (room == null)
             {
-                room = await _myDbContext.Rooms.FirstOrDefaultAsync(x => x.Id == targetId);
-                if(room == null)
+                room = new Room()
                 {
+                    Users = new StringBuilder().Append(user.Id).Append(", ").Append(target.Id).ToString(),
+                    Name = user.Name + " + " + target.Name
+                };
 
-                    var user = await _myDbContext.Users.FindAsync(userId);
-                    var target = await _myDbContext.Users.FindAsync(targetId);
-
-                    room = new Room()
-                    {
-                        Id = _rand.Next(),
-                        Members = $"{userId}, {targetId}",
-                        Name = user.Name + " + " + target.Name
-                    };
-
-                    await _myDbContext.Rooms.AddAsync(room);
-                    await _myDbContext.SaveChangesAsync();
-                }
+                await _myDbContext.Rooms.AddAsync(room);
+                await _myDbContext.SaveChangesAsync();
             }
 
             var msg = new Message()
             {
-                Id = _rand.Next(),
                 UserId = userId,
-                Room = room.Id,
+                RoomId = room.Id,
                 Text = text,
                 Date = DateTime.Now
             };
@@ -127,13 +144,13 @@ namespace Citron.Backend
 
             var clients = new List<string>();
             var users = new List<User>();
-            
+            var roomUsers = (room as Room).Users.Split(", ").Select(x=>GetUserByIdAsync(int.Parse(x)).Result);
 
-            if(_singleInstanceHelper.Connections.Count != 0)
+            if (_singleInstanceHelper.Connections.Count != 0)
             {
-                foreach (var member in room.Members.Split(", "))
+                foreach (var member in roomUsers)
                 {
-                    var m = await _myDbContext.Users.FirstAsync(x => x.Id == int.Parse(member));
+                    var m = await _myDbContext.Users.FirstAsync(x => x.Id == member.Id);
                     users.Add(m);
                 }
 

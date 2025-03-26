@@ -71,39 +71,39 @@ namespace Citron.Backend.Controllers
             return await _dbContext.Users.FindAsync(id);
         }
 
-        public async Task<Message> SendNewMessageAsync([FromBody] SendMessageBody messageBody)
-        {
-            var room = await _dbContext.Rooms.FirstOrDefaultAsync(x => x.Members.Contains(messageBody.TargetId.ToString()));
-            if (room == null)
-            {
+        //public async Task<Message> SendNewMessageAsync([FromBody] SendMessageBody messageBody)
+        //{
+        //    var room = await _dbContext.Rooms.FirstOrDefaultAsync(x => x.Members.Contains(messageBody.TargetId.ToString()));
+        //    if (room == null)
+        //    {
 
-                var user = await _dbContext.Users.FindAsync(messageBody.UserId);
-                var target = await _dbContext.Users.FindAsync(messageBody.TargetId);
+        //        var user = await _dbContext.Users.FindAsync(messageBody.UserId);
+        //        var target = await _dbContext.Users.FindAsync(messageBody.TargetId);
 
-                room = new Room()
-                {
-                    Id = _rand.Next(),
-                    Members = $"{messageBody.UserId}, {messageBody.TargetId}",
-                    Name = user.Name + " + " + target.Name
-                };
+        //        room = new Room()
+        //        {
+        //            Id = _rand.Next(),
+        //            Members = $"{messageBody.UserId}, {messageBody.TargetId}",
+        //            Name = user.Name + " + " + target.Name
+        //        };
 
-                await _dbContext.Rooms.AddAsync(room);
-                await _dbContext.SaveChangesAsync();
-            }
+        //        await _dbContext.Rooms.AddAsync(room);
+        //        await _dbContext.SaveChangesAsync();
+        //    }
 
-            var msg = new Message()
-            {
-                Id = _rand.Next(),
-                UserId = messageBody.UserId,
-                Room = room.Id,
-                Text = messageBody.Text
-            };
+        //    var msg = new Message()
+        //    {
+        //        Id = _rand.Next(),
+        //        UserId = messageBody.UserId,
+        //        Room = room.Id,
+        //        Text = messageBody.Text
+        //    };
 
-            await _dbContext.Messages.AddAsync(msg);
-            await _dbContext.SaveChangesAsync();
+        //    await _dbContext.Messages.AddAsync(msg);
+        //    await _dbContext.SaveChangesAsync();
 
-            return msg;
-        }
+        //    return msg;
+        //}
     }
 
     public class RegisterData
