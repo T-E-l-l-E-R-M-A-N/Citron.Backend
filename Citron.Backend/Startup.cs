@@ -19,7 +19,7 @@ namespace Citron.Backend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<MyDbContext>(o => {
-                o.UseNpgsql("Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=00001111");
+                o.UseSqlite("Data Source=app.db");
                 
                 o.LogTo(message => System.Diagnostics.Debug.WriteLine(message));
             });
