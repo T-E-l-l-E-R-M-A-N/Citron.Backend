@@ -32,7 +32,7 @@ namespace Citron.Backend.Controllers
             var user = new User()
             {
                 Id = _rand.Next(),
-                Name = register.Name,
+                //Name = register.Name,
                 Login = register.Login,
                 Password = register.Password,
                 AccessKey = Guid.NewGuid().ToString()

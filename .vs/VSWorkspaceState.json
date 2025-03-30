@@ -2,8 +2,10 @@
   "ExpandedNodes": [
     "",
     "\\Citron.Backend",
-    "\\Citron.Backend\\Hubs"
+    "\\Citron.Backend\\Hubs",
+    "\\Citron.Backend\\obj",
+    "\\Citron.Database"
   ],
-  "SelectedNode": "\\Citron.Backend\\Hubs\\ApplicationHub.cs",
+  "SelectedNode": "\\Citron.sln",
   "PreviewInSolutionExplorer": false
 }

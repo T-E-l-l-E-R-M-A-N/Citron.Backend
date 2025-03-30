@@ -6,6 +6,7 @@ namespace Citron.Database
     public class MyDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<RoomData> RoomDatas { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Room> Rooms { get; set; }
 

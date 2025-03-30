@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace Citron.Backend
         private readonly Random _rand = new Random();
         private readonly SingleInstanceHelper _singleInstanceHelper;
         private readonly MyDbContext _myDbContext;
-        
+
 
         public ApplicationHub(SingleInstanceHelper singleInstanceHelper, MyDbContext myDbContext)
         {
@@ -40,10 +41,12 @@ namespace Citron.Backend
         public async Task<string> RegisterAsync(string name, string login, string password)
         {
             if (string.IsNullOrEmpty(login)) return "none: access key";
-            
+
             var user = new User()
             {
-                Name = name,
+                ScreenName = name,
+                FirstName = name.ToLower(),
+                LastName = name.ToUpper(),
                 Login = login,
                 Password = password,
                 AccessKey = Guid.NewGuid().ToString()
@@ -60,8 +63,8 @@ namespace Citron.Backend
             var user = await _myDbContext.Users.SingleAsync(x => x.Login == login);
             if (user == null)
                 return "Invalid credentials";
-            
-            if(user.Password != password)
+
+            if (user.Password != password)
                 return "Invalid credentials";
 
             //await Clients.Others.SendAsync("OnUserConnected", $"{user.Name} : connected");
@@ -73,42 +76,52 @@ namespace Citron.Backend
             var connection = _singleInstanceHelper.Connections.FirstOrDefault(x => x.Contains(Context.ConnectionId));
             var splits = connection.Split(" : ");
             var s = _myDbContext.Users.FirstOrDefault(x => x.Id == int.Parse(splits[1]));
-            var users = _myDbContext.Users.Where(x=>x.Id != s.Id).ToArray();
+            var users = _myDbContext.Users.Where(x => x.Id != s.Id).ToArray();
             return await Task.FromResult(users);
         }
 
         public async Task<User> GetUserByIdAsync(int id)
         {
-            return await _myDbContext.Users.SingleAsync(x => x.Id == id);
+            var user = await _myDbContext.Users.SingleAsync(x => x.Id == id);
+            return user;
         }
 
-        public async Task<Room[]> GetRoomsAsync(int id)
+        public async Task<List<RoomData>> GetRoomsAsync(int id)
         {
-            var user = await _myDbContext.Users.SingleAsync(x=>x.Id == id);
-            var rooms = _myDbContext.Rooms.Where(x => x.Users.Contains(user.Id.ToString()));
-            var res = rooms.Select(u => new Room()
+            var user = await _myDbContext.Users.SingleAsync(x => x.Id == id);
+            var rooms = _myDbContext.RoomDatas.Include(x => x.Room).Include(u => u.Users).Include(u => u.Messages).Where(x => x.Users.Contains(user));
+
+
+            return rooms.ToList();
+        }
+
+        public async Task<List<Message>> GetMessages(int roomId)
+        {
+            var rooms = await _myDbContext.RoomDatas.Include(u => u.Room).Include(u => u.Users).Include(u => u.Messages).ToListAsync();
+            try
             {
-                Id = u.Id,
-                Name = u.Name.Replace(user.Name, "").Replace(" + ", ""),
-                Users = u.Users
-            }).ToArray();
-            return res;
+                var room = rooms.FirstOrDefault(x => x.RoomId == roomId);
+                if (room != null)
+                {
+                    return room.Messages;
+                }
+            }
+            catch { }
+            return new List<Message>();
         }
 
-        public async Task<Message[]> GetMessages(int roomId)
+        public async Task<RoomData> GetRoomAsync(int roomId)
         {
-            var messages = _myDbContext.Messages
-                .Include(u => u.Room)
-                .Include(u =>u.User)
-                .Where(x=>x.RoomId == roomId);
-            return await Task.FromResult(messages.ToArray());
+            var rooms = await _myDbContext.RoomDatas.Include(u => u.Room).Include(u => u.Users).Include(u => u.Messages).ToListAsync();
+            var roomData = rooms.FirstOrDefault(x => x.RoomId == roomId);
+            return roomData;
         }
 
         public async Task<User[]> SearchUsers(string name)
         {
             var users = _myDbContext.Users
                 .Where(x => 
-                x.Name.ToLower().Contains(name.ToLower())
+                x.ScreenName.ToLower().Contains(name.ToLower())
                 );
             return await Task.FromResult(users.ToArray());
         }
@@ -118,65 +131,50 @@ namespace Citron.Backend
             var user = await GetUserByIdAsync(userId);
             var target = await GetUserByIdAsync(targetId);
             var rooms = await GetRoomsAsync(userId);
-            var room = rooms.Where(x=>x.Users.Split(", ").Length == 2).FirstOrDefault(x=>x.Users.Contains(user.Id.ToString()) & x.Users.Contains(target.Id.ToString()));
-            if (room == null)
+            var roomData = rooms.Where(x=>x.Users.Count == 2).FirstOrDefault(x=>x.Users.Contains(user) & x.Users.Contains(target));
+            if (roomData == null)
             {
-                room = new Room()
+                var room = new Room()
                 {
-                    Users = new StringBuilder().Append(user.Id).Append(", ").Append(target.Id).ToString(),
-                    Name = user.Name + " + " + target.Name
+                    Name = user.ScreenName + " / " + target.ScreenName
                 };
 
                 await _myDbContext.Rooms.AddAsync(room);
                 await _myDbContext.SaveChangesAsync();
+
+                roomData = new RoomData()
+                {
+                    Users = new List<User>()
+                    {
+                        user,
+                        target
+                    },
+                    Messages =new List<Message>(),
+                    RoomId = room.Id
+                };
+
+                await _myDbContext.RoomDatas.AddAsync(roomData);
+                await _myDbContext.SaveChangesAsync();
             }
+
 
             var msg = new Message()
             {
                 UserId = userId,
-                RoomId = room.Id,
+                RoomId = roomData.RoomId,
                 Text = text,
-                Date = DateTime.Now
+                Time = DateTime.Now.ToShortTimeString()
             };
-            
+
+            roomData.Room.MessagesCount += 1;
+
+            roomData.Messages.Add(msg);
+
+            //roomData.LastMessageId = roomData.Messages.LastOrDefault().Id;
             await _myDbContext.Messages.AddAsync(msg);
             await _myDbContext.SaveChangesAsync();
 
-            var clients = new List<string>();
-            var users = new List<User>();
-            var roomUsers = (room as Room).Users.Split(", ").Select(x=>GetUserByIdAsync(int.Parse(x)).Result);
-
-            if (_singleInstanceHelper.Connections.Count != 0)
-            {
-                foreach (var member in roomUsers)
-                {
-                    var m = await _myDbContext.Users.FirstAsync(x => x.Id == member.Id);
-                    users.Add(m);
-                }
-
-                foreach (var l in users)
-                {
-                    try
-                    {
-                        string connectionId = "";
-                        foreach(var connection in _singleInstanceHelper.Connections)
-                        {
-                            if (connection.Split(" : ").FirstOrDefault(d => d == l.Id.ToString()) is string g)
-                            {
-                                if (_singleInstanceHelper.Connections.FirstOrDefault(x => x.Contains(g)) is string connection2)
-                                {
-                                    connectionId = connection2.Split(" : ").FirstOrDefault();
-                                }
-                            }
-                        }
-                        
-                        clients.Add(connectionId);
-                    }
-                    catch (Exception e) { Console.Write(e); }
-                }
-
-                await Clients.Clients(clients).SendAsync("OnMessageReceived", msg);
-            }
+            await Clients.All.SendAsync("OnMessageReceived", msg);
         }
         
     }
